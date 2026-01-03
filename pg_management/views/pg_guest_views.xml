@@ -1,0 +1,168 @@
+<odoo>
+    <!-- 1. List View -->
+    <record id="view_pg_guest_list" model="ir.ui.view">
+        <field name="name">pg.guest.list</field>
+        <field
+            name="model"
+        >pg.guest</field> <!-- Mandatory field to link the view to a specific data model -->
+        <field name="arch" type="xml">
+            <list string="Guests">
+                <field name="name" />
+                <field name="mobile" />
+                <field name="occupation_type" />
+                <field name="organization_name" />
+                <field name="id_proof_type" />
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. Form View -->
+    <record id="view_pg_guest_form" model="ir.ui.view">
+        <field name="name">pg.guest.form</field>
+        <field name="model">pg.guest</field>
+        <field name="arch" type="xml">
+            <form string="Guest Profile">
+                <sheet>
+                    <group>
+                        <div class="oe_title">
+                            <label for="name" string="Guest Name" />
+                            <h1><field
+                                    class="text-break"
+                                    options="{'line-breaks': False}"
+                                    widget="text"
+                                    name="name"
+                                    required="True"
+                                    placeholder="e.g. Vinay Modi"
+                                /></h1>
+                        </div>
+                        <div>  <!-- add profile image of guest -->
+                            <field name="profile" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;avatar_128&quot;}"/>
+                        </div>
+                    </group>
+                    <group>
+                        <group string="Contact Information">
+                            <field name="mobile" widget="phone" required="True" />
+                            <field name="email" widget="email" />
+                            <field name="gender_type" required="True" />
+                            <field name="occupation_type" />
+                            <field name="organization_name" />
+                        </group>
+                        <group string="KYC Documents">
+                            <field name="id_proof_type" required="True" />
+                            <field name="id_proof_number" required="True" />
+                            <field
+                                name="id_proof_image"
+                                filename="id_proof_number"
+                                widget="image"
+                                class="oe_avatar"
+                            />
+                        </group>
+                        <!-- apply selection for rooms to allocate -->
+                        <group string="Room Selection Filters">
+                            <field name="filter_room_type" widget="radio" options="{'horizontal': True}"/>
+                            <field name="filter_floor"/>
+                        </group>
+                        <group string="Final Allocation">
+                            <!--room_id will now only show rooms matching the type and floor above -->
+                            <field name="room_id"
+                                   options="{'no_create':True}"
+                                   context="{'default_room_type': filter_room_type, 'default_floor':filter_floor}"
+                             />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Address &amp; Emergency">
+                            <group>
+                                <group string="Home Address">
+                                    <field name="permanent_address_name" />
+                                </group>
+                                <group string="Emergency Contact" required="True">
+                                    <field
+                                        name="emergency_contact_name"
+                                        required="True"
+                                    />
+                                    <field name="relationship" />
+                                    <field
+                                        name="emergency_contact_number"
+                                        widget="phone"
+                                        required="True"
+                                    />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 3. kanban view -->
+    <record id="view_pg_guest_kanban" model="ir.ui.view">
+        <field name="name">pg.guest.kanban</field>
+        <field name="model">pg.guest</field>
+        <field name="arch" type="xml">
+            <kanban class="o_pg_guest_kanban" sample="1">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="room_id"/>
+                <field name="profile"/>
+                <field name="occupation_type"/>
+                <templates>
+                    <t t-name="card">
+                        <!-- Main Card Container -->
+                        <div class="oe_kanban_global_click d-flex align-items-center p-2 shadow-sm border-rounded mb-2">
+
+                            <!-- Left Side: Image using the proper Odoo 18 widget -->
+                            <div class="o_kanban_image me-3">
+                                <field name="profile" widget="image"
+                                       options="{'preview_image': 'profile', 'size': [80, 80]}"
+                                       class="rounded-circle shadow-sm"/>
+                            </div>
+
+                            <!-- Right Side: Details -->
+                            <div class="oe_kanban_details ps-2 d-flex flex-column w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong class="o_kanban_record_title fs-5 text-primary">
+                                        <field name="name"/>
+                                    </strong>
+                                    <!-- Room Badge -->
+                                    <span class="badge rounded-pill bg-primary-light text-primary border px-2">
+                                        <i class="fa fa-door-open me-1"/> <field name="room_id"/>
+                                    </span>
+                                </div>
+
+                                <div class="text-muted small mt-1">
+                                    <i class="fa fa-briefcase me-1"/> <field name="occupation_type"/>
+                                </div>
+
+                                <div class="mt-2 d-flex justify-content-between align-items-center">
+                                    <span class="text-dark small">
+                                        <i class="fa fa-phone me-1 text-success"/> <field name="mobile"/>
+                                    </span>
+                                    <i class="fa fa-circle text-success small" title="Active Tenant" style="font-size: 8px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <!-- 3. Action -->
+    <record id="action_pg_guest" model="ir.actions.act_window">
+        <field name="name">Guests</field>
+        <field name="res_model">pg.guest</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+    <!-- 4 Menu item -->
+    <menuitem
+        id="menu_pg_guest"
+        name="Guests"
+        parent="menu_pg_root"
+        action="action_pg_guest"
+        sequence="20"
+    />
+</odoo>

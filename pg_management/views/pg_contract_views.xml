@@ -1,0 +1,149 @@
+<odoo>
+    <!-- 1. LIST VIEW -->
+    <record id="view_pg_contract_list" model="ir.ui.view">
+        <field name="name">pg.contract.list</field>
+        <field name="model">pg.contract</field>
+        <field name="arch" type="xml">
+            <list string="PG Contracts">
+                <field name="name"/>
+                <field name="guest_id"/>
+                <field name="room_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="rent_amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. FORM VIEW -->
+    <record id="view_pg_contract_form" model="ir.ui.view">
+        <field name="name">pg.contract.form</field>
+        <field name="model">pg.contract</field>
+        <field name="arch" type="xml">
+            <form string="PG Contract">
+
+                <!-- HEADER -->
+                <header>
+                    <!-- Object Buttons -->
+                    <button name="action_start_contract"
+                            string="Start Contract"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_close_contract"
+                            string="Close Contract"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'running'"/>
+
+                    <!-- Statusbar -->
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,running,closed"/>
+                </header>
+
+                <!-- BODY -->
+                <sheet>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+
+                    <!-- Main Details -->
+                    <group>
+                        <group string="Guest and Room">
+                            <field name="guest_id" required="1"/>
+                            <field name="room_id" required="1"/>
+                        </group>
+
+                        <group string="Contract Period">
+                            <field name="start_date" required="1"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <!-- Financial Info -->
+                    <group string="Financial Details">
+                        <field name="rent_amount"/>
+                    </group>
+
+                </sheet>
+                <!-- added for chatter entry -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- 3. SEARCH VIEW -->
+    <record id="view_pg_contract_search" model="ir.ui.view">
+        <field name="name">pg.contract.search</field>
+        <field name="model">pg.contract</field>
+        <field name="arch" type="xml">
+            <search string="Search Contracts">
+
+                <!-- Search Fields -->
+                <field name="name"/>
+                <field name="guest_id"/>
+                <field name="room_id"/>
+
+                <!-- Filters -->
+                <filter name="filter_draft"
+                        string="Draft"
+                        domain="[('state','=','draft')]"/>
+
+                <filter name="filter_running"
+                        string="Running"
+                        domain="[('state','=','running')]"/>
+
+                <filter name="filter_closed"
+                        string="Closed"
+                        domain="[('state','=','closed')]"/>
+
+                <separator/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter name="group_by_guest"
+                            string="Guest"
+                            context="{'group_by':'guest_id'}"/>
+                    <filter name="group_by_room"
+                            string="Room"
+                            context="{'group_by':'room_id'}"/>
+                    <filter name="group_by_state"
+                            string="Status"
+                            context="{'group_by':'state'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+    <!-- 4. WINDOW ACTION -->
+    <record id="action_pg_contract" model="ir.actions.act_window">
+        <field name="name">PG Contracts</field>
+        <field name="res_model">pg.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first PG Contract
+            </p>
+        </field>
+    </record>
+
+    <!-- 5. MENU ITEM -->
+    <menuitem id="menu_pg_contract"
+              name="Contracts"
+              parent="menu_pg_root"
+              action="action_pg_contract"
+              sequence="40"/>
+
+</odoo>

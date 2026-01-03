@@ -1,0 +1,20 @@
+{
+    "name": "PG Management",
+    "version": "18.0.1.0.0",
+    "category": "Extra Tools",
+    "summary": "Manage Rooms, Beds, and Tenants for PG/Hostels",
+    "author": "BizzAppDev Systems Pvt. Ltd.",
+    "depends": ["base", "mail", "account"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/pg_cron.xml",
+        'data/pg_sequence.xml',
+        "views/pg_contract_views.xml",
+        "views/res_partner_views.xml",
+        "views/pg_room_views.xml",
+        "views/pg_guest_views.xml",
+    ],
+    "installable": True,
+    "application": True,
+    "license": "LGPL-3",
+}

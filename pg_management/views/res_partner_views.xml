@@ -1,0 +1,38 @@
+<odoo>
+    <record id="view_partner_form_inherit_pg" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.pg</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/> <!-- Inheriting the base view -->
+        <field name="arch" type="xml">
+            <!-- Find the 'category_id' field and insert our field after it -->
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="is_pg_tenant"/>
+                <field name="pg_id_proof" invisible="not is_pg_tenant"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Window Action to show PG Tenants -->
+    <record id="action_pg_tenants" model="ir.actions.act_window">
+        <field name="name">PG Tenants</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,kanban,form</field>
+        <!-- Filter to show ONLY partners where is_pg_tenant is checked -->
+        <field name="domain">[('is_pg_tenant', '=', True)]</field>
+        <!-- Automatically check the 'Is PG Tenant' box when creating from here -->
+        <field name="context">{'default_is_pg_tenant': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register your first PG tenant here!
+            </p>
+        </field>
+    </record>
+
+    <!-- Add the menu item under your PG Management Root Menu -->
+    <menuitem id="menu_pg_tenants" 
+              name="Tenants (Contacts)" 
+              parent="menu_pg_root" 
+              action="action_pg_tenants" 
+              sequence="30"/>
+              
+</odoo>

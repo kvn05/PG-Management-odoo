@@ -1,0 +1,8 @@
+<odoo>
+    <record id="seq_pg_contract" model="ir.sequence">
+        <field name="name">PG Contract</field>
+        <field name="code">pg.contract</field>
+        <field name="prefix">PGC/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>

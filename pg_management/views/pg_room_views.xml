@@ -1,0 +1,232 @@
+<odoo>
+    <!-- 1. List View -->
+    <record id="view_pg_room_list" model="ir.ui.view">
+        <field name="name">pg.room.list</field>
+        <field name="model">pg.room</field>
+        <field
+            name="arch"
+            type="xml"
+        >  <!-- Begins XML architecture definition for UI -->
+            <list string="Rooms">
+                <field name="name" />
+                <field name="floor_name" />
+                <field
+                    name="room_type_value"
+                    widget="badge"
+                    decoration-info="room_type_value == 'ac'"
+                    decoration-muted="room_type_value == 'non_ac'"
+                />
+                <!--
+                widget="badge" - display text inside colored bubble
+                decoration-info: Colors the badge blue if the type is 'ac'.
+                decoration-muted: Colors the badge grey if the type is 'non_ac'.
+                -->
+                <field name="capacity" />
+                <field
+                    name="available_beds_num"
+                    decoration-danger="available_beds_num == 0"
+                    decoration-success="available_beds_num > 0"
+                />
+                <!--
+                decoration-danger: Turns the text red if there are 0 beds available.
+                decoration-success: Turns the text green if there is 1 or more beds available.
+                -->
+                <field name="rent_amount" />
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. Form View -->
+    <record id="view_pg_room_form" model="ir.ui.view">
+        <field name="name">pg.room.form</field>
+        <field name="model">pg.room</field>
+        <field name="arch" type="xml">
+            <form string="Room Details">
+                <header>
+                    <!-- Object Button: Calls Python Method -->
+                    <button name="action_set_to_maintenance" 
+                        string="Put in Maintenance" 
+                        type="object" 
+                        class="oe_highlight btn-warning" 
+                        invisible="state == 'maintenance'"/>
+
+                    <button name="action_set_to_available" 
+                            string="Set to Available" 
+                            type="object" 
+                            invisible="state == 'available'"/>
+
+                    <!-- Statusbar: Shows current state -->
+                    <field name="state" widget="statusbar" statusbar_visible="available,maintenance"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_contracts"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <field name="contract_count"
+                                widget="statinfo"
+                                string="Contracts"/>
+                        </button>
+                    </div>
+                    <div
+                        class="oe_title"
+                    >  <!-- Style the content bold and to be at top-->
+                        <h1>
+                            <field name="name" placeholder="e.g. Room 101" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuration">
+                            <field name="floor_name" />
+                            <field name="room_type_value" />
+                            <field
+                                name="rent_amount"
+                                widget="monetary"
+                                options="{'currency_field': 'currency_id'}"
+                            />
+                            <!--
+                            widget="monetary" : adds currency symbol
+                            options tells Odoo which field (currency_id) to use for that symbol.
+                            -->
+                        </group>
+                        <group string="Occupancy Statistics">
+                            <field name="capacity" />
+                            <field name="occupied_beds_num" />
+                            <field
+                                name="available_beds_num"
+                                readonly="1"
+                            />  <!-- User cann't write only read-->
+                        </group>
+                    </group>
+                    <notebook>
+                        <page
+                            string="Facilities &amp; Notes"
+                        > <!--The &amp; is the XML escape code for &-->
+                            <field
+                                name="facilities"
+                                placeholder="Enter facilities like Wi-Fi, Attached Balcony, Geyser, etc..."
+                            />
+                        </page>
+                        <page string="Current Guests">
+                            <field name="guest_ids" readonly="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="mobile" />
+                                    <field name="occupation_type" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 3. Kanban View Definition -->
+    <record id="view_pg_room_kanban" model="ir.ui.view">
+        <field name="name">pg.room.kanban</field>
+        <field name="model">pg.room</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="room_type_value"/>
+                <field name="available_beds_num"/>
+                <field name="capacity"/>
+                <field name="rent_amount"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong class="o_kanban_record_title" style="font-size: 16px;">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge rounded-pill" t-attf-class="bg-#{record.room_type_value.raw_value == 'ac' ? 'info' : 'secondary'}">
+                                    <field name="room_type_value"/>
+                                </span>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <span class="text-muted">Available:</span>
+                                    <strong t-attf-class="text-#{record.available_beds_num.raw_value > 0 ? 'success' : 'danger'}">
+                                        <field name="available_beds_num"/> / <field name="capacity"/>
+                                    </strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong class="text-primary">
+                                        ₹<field name="rent_amount"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            <!-- Progress Bar for Occupancy -->
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     t-attf-style="width: #{(record.capacity.raw_value - record.available_beds_num.raw_value) / record.capacity.raw_value * 100}%">
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- 4. Search view -->
+    <record id="view_pg_room_search" model="ir.ui.view">
+        <field name="name">pg.room.search</field>
+        <field name="model">pg.room</field>
+        <field name="arch" type="xml">
+            <search string="Search Rooms">
+                <!-- Searchable Fields -->
+                <field name="name"/>
+                <field name="facilities"/>
+
+                <!-- Custom Filters -->
+                <filter string="AC Rooms" name="filter_ac" domain="[('room_type_value', '=', 'ac')]"/>
+                <filter string="Non-AC Rooms" name="filter_non_ac" domain="[('room_type_value', '=', 'non_ac')]"/>
+                <separator/>
+                <!-- Filter to hide fully occupied rooms -->
+                <filter string="Available Rooms" name="available_rooms" domain="[('available_beds_num', '>', 0)]"/>
+
+                <separator/>
+                <!-- Rent amount based filters -->
+                <filter string="Budget Rooms (Under 5000)" name="budget_rooms" domain="[('rent_amount', '&lt;', 10000)]"/>
+                <filter string="Premium Rooms (Over 10000)" name="premium_rooms" domain="[('rent_amount', '>', 10000)]"/>
+
+                <!-- Group By Options -->
+                <group expand="0" string="Group By">
+                    <filter string="Floor" name="group_by_floor" context="{'group_by': 'floor_name'}"/>
+                    <filter string="Room Type" name="group_by_type" context="{'group_by': 'room_type_value'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- 3. Window Action -->
+    <record id="action_pg_room" model="ir.actions.act_window">
+        <field name="name">Rooms</field>
+        <field name="res_model">pg.room</field> <!--fetch data from the pg.room database table-->
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_available_rooms': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register your first PG room!
+            </p>
+        </field>
+    </record>
+
+    <!-- 4. Menus -->
+    <menuitem id="menu_pg_root" name="PG Management" sequence="10" />
+    <menuitem
+        id="menu_pg_room"
+        name="Rooms"
+        parent="menu_pg_root"
+        action="action_pg_room"
+        sequence="10"
+    />
+</odoo>

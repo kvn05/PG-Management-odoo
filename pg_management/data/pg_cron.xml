@@ -1,0 +1,13 @@
+<odoo>
+    <record id="cron_pg_rent_reminder" model="ir.cron">
+        <field name="name">PG Monthly Rent Reminder</field>
+        <field name="model_id" ref="model_pg_contract"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_rent_reminder()</field>
+
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+
+        <field name="active">True</field>
+    </record>
+</odoo>

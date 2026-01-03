@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pg_room,pg.room,model_pg_room,base.group_user,1,1,1,1
+access_pg_guest,pg.guest,model_pg_guest,base.group_user,1,1,1,1
+access_pg_contract_manager,pg.contract manager,model_pg_contract,base.group_system,1,1,1,1
